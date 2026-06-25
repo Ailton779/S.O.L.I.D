@@ -25,7 +25,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.button}
           onPress={() => navigation.navigate('Scanner')}
         >
-          <Text style={styles.buttonText}>🐍  Identificar Cobra</Text>
+          <Text style={styles.buttonText}> Identificar Cobra</Text>
         </TouchableOpacity>
 
         <Text style={styles.disclaimer}>

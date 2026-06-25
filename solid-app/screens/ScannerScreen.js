@@ -50,7 +50,7 @@ export default function ScannerScreen({ navigation }) {
 
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
-          <Text style={styles.buttonSecondaryText}>🖼️  Escolher da Galeria</Text>
+          <Text style={styles.buttonSecondaryText}> Escolher da Galeria</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -58,7 +58,7 @@ export default function ScannerScreen({ navigation }) {
           onPress={analyzeImage}
           disabled={!image}
         >
-          <Text style={styles.buttonPrimaryText}>🔍  Analisar Foto</Text>
+          <Text style={styles.buttonPrimaryText}> Analisar Foto</Text>
         </TouchableOpacity>
       </View>
     </View>
