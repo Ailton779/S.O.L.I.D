@@ -49,26 +49,24 @@ export default function ScannerScreen({ navigation }) {
 
       <Text style={styles.title}>Identificar Cobra</Text>
 
-      <View style={styles.previewContainer}>
+      <TouchableOpacity
+        style={styles.previewContainer}
+        onPress={takePhoto}
+        activeOpacity={0.8}
+      >
         {image ? (
           <Image source={{ uri: image }} style={styles.preview} resizeMode="cover" />
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Nenhuma foto selecionada</Text>
+            <Text style={styles.placeholderText}>Toque para abrir a camera</Text>
           </View>
         )}
-      </View>
+      </TouchableOpacity>
 
       <View style={styles.bottomContainer}>
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
-            <Text style={styles.buttonSecondaryText}>Galeria</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.buttonSecondary} onPress={takePhoto}>
-            <Text style={styles.buttonSecondaryText}>Camera</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
+          <Text style={styles.buttonSecondaryText}>Escolher da Galeria</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.buttonPrimary, !image && styles.buttonDisabled]}
@@ -120,12 +118,7 @@ const styles = StyleSheet.create({
   bottomContainer: {
     gap: 12,
   },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-  },
   buttonSecondary: {
-    flex: 1,
     borderWidth: 1,
     borderColor: colors.primary,
     paddingVertical: 16,
