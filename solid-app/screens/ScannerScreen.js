@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { colors } from '../constants/colors';
 import { snakes } from '../constants/snakes';
+import { analyzeSnakeImage } from '../services/api';
 
 export default function ScannerScreen({ navigation }) {
   const [image, setImage] = useState(null);
@@ -38,10 +39,13 @@ export default function ScannerScreen({ navigation }) {
     }
   };
 
-  const analyzeImage = () => {
-    const randomSnake = snakes[Math.floor(Math.random() * snakes.length)];
-    navigation.navigate('Result', { snake: randomSnake, image });
-  };
+ const analyzeImage = async () => {
+  const apiResult = await analyzeSnakeImage(image);
+  const snake = apiResult
+    ? apiResult
+    : snakes[Math.floor(Math.random() * snakes.length)];
+  navigation.navigate('Result', { snake, image });
+};
 
   return (
     <View style={styles.container}>
@@ -145,3 +149,4 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
+// servico importado mas ainda nao conectado — backend em desenvolvimento
