@@ -20,11 +20,23 @@ const emergencyContacts = [
 ];
 
 export default function ResultScreen({ navigation, route }) {
-  const { snake, image } = route.params;
+  const { snake, image, confidence } = route.params;
 
   const handleCall = (number) => {
     const cleaned = number.replace(/\D/g, '');
     Linking.openURL(`tel:${cleaned}`);
+  };
+
+  const getConfidenceColor = (value) => {
+    if (value >= 0.85) return colors.safe;
+    if (value >= 0.65) return '#E6A817';
+    return colors.danger;
+  };
+
+  const getConfidenceLabel = (value) => {
+    if (value >= 0.85) return 'Alta confianca';
+    if (value >= 0.65) return 'Confianca moderada';
+    return 'Baixa confianca';
   };
 
   return (
@@ -46,6 +58,15 @@ export default function ResultScreen({ navigation, route }) {
           <Text style={styles.name}>{snake.name}</Text>
           <Text style={styles.scientific}>{snake.scientific}</Text>
         </View>
+
+        {confidence && (
+          <View style={[styles.confidenceCard, { borderLeftColor: getConfidenceColor(confidence) }]}>
+            <Text style={styles.confidenceLabel}>{getConfidenceLabel(confidence)}</Text>
+            <Text style={[styles.confidenceValue, { color: getConfidenceColor(confidence) }]}>
+              {Math.round(confidence * 100)}% de certeza
+            </Text>
+          </View>
+        )}
 
         <View style={[styles.badge, snake.venomous ? styles.badgeDanger : styles.badgeSafe]}>
           <Text style={styles.badgeText}>
@@ -136,6 +157,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     fontStyle: 'italic',
+  },
+  confidenceCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  confidenceLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  confidenceValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   badge: {
     paddingVertical: 12,
@@ -229,4 +268,3 @@ const styles = StyleSheet.create({
     color: colors.danger,
   },
 });
-// confidence adicionado no route.params
