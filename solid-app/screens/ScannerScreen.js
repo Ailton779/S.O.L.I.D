@@ -20,6 +20,24 @@ export default function ScannerScreen({ navigation }) {
     }
   };
 
+  const takePhoto = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (permission.status !== 'granted') {
+      alert('Permissao de camera negada.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
   const analyzeImage = () => {
     const randomSnake = snakes[Math.floor(Math.random() * snakes.length)];
     navigation.navigate('Result', { snake: randomSnake, image });
@@ -36,16 +54,21 @@ export default function ScannerScreen({ navigation }) {
           <Image source={{ uri: image }} style={styles.preview} resizeMode="cover" />
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderIcon}>📷</Text>
             <Text style={styles.placeholderText}>Nenhuma foto selecionada</Text>
           </View>
         )}
       </View>
 
       <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
-          <Text style={styles.buttonSecondaryText}>Escolher da Galeria</Text>
-        </TouchableOpacity>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
+            <Text style={styles.buttonSecondaryText}>Galeria</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.buttonSecondary} onPress={takePhoto}>
+            <Text style={styles.buttonSecondaryText}>Camera</Text>
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity
           style={[styles.buttonPrimary, !image && styles.buttonDisabled]}
@@ -89,10 +112,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-  },
-  placeholderIcon: {
-    fontSize: 64,
   },
   placeholderText: {
     color: colors.textSecondary,
@@ -101,7 +120,12 @@ const styles = StyleSheet.create({
   bottomContainer: {
     gap: 12,
   },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   buttonSecondary: {
+    flex: 1,
     borderWidth: 1,
     borderColor: colors.primary,
     paddingVertical: 16,
