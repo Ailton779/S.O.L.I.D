@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://bookish-fortnight-rjrxq4v9xqgfwwxx-8000.app.github.dev';
 
 export async function analyzeSnakeImage(imageUri) {
   try {

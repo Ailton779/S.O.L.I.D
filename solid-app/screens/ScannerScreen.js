@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { colors } from '../constants/colors';
@@ -7,6 +7,7 @@ import { analyzeSnakeImage } from '../services/api';
 
 export default function ScannerScreen({ navigation }) {
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -39,13 +40,24 @@ export default function ScannerScreen({ navigation }) {
     }
   };
 
- const analyzeImage = async () => {
-  const apiResult = await analyzeSnakeImage(image);
-  const snake = apiResult
-    ? apiResult
-    : snakes[Math.floor(Math.random() * snakes.length)];
-  navigation.navigate('Result', { snake, image });
-};
+  const analyzeImage = async () => {
+    setLoading(true);
+
+    const apiResult = await analyzeSnakeImage(image);
+
+    if (apiResult && apiResult.success) {
+      navigation.navigate('Result', {
+        snake: apiResult.data,
+        confidence: apiResult.confidence,
+        image,
+      });
+    } else {
+      const fallback = snakes[Math.floor(Math.random() * snakes.length)];
+      navigation.navigate('Result', { snake: fallback, confidence: null, image });
+    }
+
+    setLoading(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -73,11 +85,15 @@ export default function ScannerScreen({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.buttonPrimary, !image && styles.buttonDisabled]}
+          style={[styles.buttonPrimary, (!image || loading) && styles.buttonDisabled]}
           onPress={analyzeImage}
-          disabled={!image}
+          disabled={!image || loading}
         >
-          <Text style={styles.buttonPrimaryText}>Analisar Foto</Text>
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.buttonPrimaryText}>Analisar Foto</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -149,4 +165,3 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
-// servico importado mas ainda nao conectado — backend em desenvolvimento

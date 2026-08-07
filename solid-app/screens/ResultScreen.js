@@ -229,3 +229,4 @@ const styles = StyleSheet.create({
     color: colors.danger,
   },
 });
+// confidence adicionado no route.params
