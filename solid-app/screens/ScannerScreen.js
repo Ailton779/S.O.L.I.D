@@ -29,13 +29,7 @@ export default function ScannerScreen({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Voltar</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Scanner</Text>
-        <View style={{ width: 60 }} />
-      </View>
+      <Text style={styles.title}>Identificar Cobra</Text>
 
       <View style={styles.previewContainer}>
         {image ? (
@@ -50,7 +44,7 @@ export default function ScannerScreen({ navigation }) {
 
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
-          <Text style={styles.buttonSecondaryText}> Escolher da Galeria</Text>
+          <Text style={styles.buttonSecondaryText}>Escolher da Galeria</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -58,7 +52,7 @@ export default function ScannerScreen({ navigation }) {
           onPress={analyzeImage}
           disabled={!image}
         >
-          <Text style={styles.buttonPrimaryText}> Analisar Foto</Text>
+          <Text style={styles.buttonPrimaryText}>Analisar Foto</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -69,26 +63,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingTop: 50,
+    paddingTop: 60,
     paddingHorizontal: 24,
     paddingBottom: 40,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  backButton: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: 'bold',
-    width: 60,
-  },
-  headerTitle: {
+  title: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 24,
   },
   previewContainer: {
     flex: 1,

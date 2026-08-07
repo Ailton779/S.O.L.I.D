@@ -1,8 +1,31 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar, ScrollView, Linking } from 'react-native';
 import { colors } from '../constants/colors';
+
+const emergencyContacts = [
+  {
+    label: 'Corpo de Bombeiros',
+    number: '193',
+    description: 'Canal geral de emergencia — CBMCE',
+  },
+  {
+    label: 'Quartel de Caninde',
+    number: '(85) 98510-0193',
+    description: 'Base regional — cobre Boa Viagem',
+  },
+  {
+    label: 'Policia Ambiental',
+    number: '190',
+    description: 'Batalhao de Policia do Meio Ambiente',
+  },
+];
 
 export default function ResultScreen({ navigation, route }) {
   const { snake, image } = route.params;
+
+  const handleCall = (number) => {
+    const cleaned = number.replace(/\D/g, '');
+    Linking.openURL(`tel:${cleaned}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -10,7 +33,7 @@ export default function ResultScreen({ navigation, route }) {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Scanner')}>
-          <Text style={styles.backButton}>← Escanear novamente</Text>
+          <Text style={styles.backButton}>{'<'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -26,7 +49,7 @@ export default function ResultScreen({ navigation, route }) {
 
         <View style={[styles.badge, snake.venomous ? styles.badgeDanger : styles.badgeSafe]}>
           <Text style={styles.badgeText}>
-            {snake.venomous ? 'PECОНHENTA' : 'NAO PECОНHENTA'}
+            {snake.venomous ? 'PECONHENTA' : 'NAO PECONHENTA'}
           </Text>
         </View>
 
@@ -38,14 +61,14 @@ export default function ResultScreen({ navigation, route }) {
         )}
 
         <View style={styles.infoCard}>
-          <Text style={styles.infoLabel}>Status de proteção</Text>
+          <Text style={styles.infoLabel}>Status de protecao</Text>
           <Text style={[styles.infoValue, snake.protected && { color: colors.primary }]}>
             {snake.protection_status}
           </Text>
         </View>
 
         <View style={styles.infoCard}>
-          <Text style={styles.infoLabel}>Sobre a espécie</Text>
+          <Text style={styles.infoLabel}>Sobre a especie</Text>
           <Text style={styles.infoText}>{snake.description}</Text>
         </View>
 
@@ -55,6 +78,23 @@ export default function ResultScreen({ navigation, route }) {
             <Text style={styles.infoText}>{snake.first_aid}</Text>
           </View>
         )}
+
+        <View style={styles.emergencyContainer}>
+          <Text style={styles.emergencyTitle}>Contatos de Emergencia</Text>
+          {emergencyContacts.map((contact, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.emergencyCard}
+              onPress={() => handleCall(contact.number)}
+            >
+              <View style={styles.emergencyInfo}>
+                <Text style={styles.emergencyLabel}>{contact.label}</Text>
+                <Text style={styles.emergencyDescription}>{contact.description}</Text>
+              </View>
+              <Text style={styles.emergencyNumber}>{contact.number}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -74,7 +114,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     color: colors.primary,
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   image: {
@@ -148,5 +188,44 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  emergencyContainer: {
+    marginTop: 8,
+  },
+  emergencyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  emergencyCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.danger,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  emergencyInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  emergencyLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  emergencyDescription: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  emergencyNumber: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.danger,
   },
 });

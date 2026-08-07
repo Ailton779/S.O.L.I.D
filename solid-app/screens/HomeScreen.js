@@ -1,12 +1,19 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, Image, StyleSheet, StatusBar } from 'react-native';
+import { useEffect } from 'react';
 import { colors } from '../constants/colors';
 
 export default function HomeScreen({ navigation }) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigation.replace('Scanner');
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-
-      <View style={styles.logoContainer}>
+      <View style={styles.content}>
         <Image
           source={require('../assets/logo.png')}
           style={styles.logo}
@@ -14,24 +21,12 @@ export default function HomeScreen({ navigation }) {
         />
         <Text style={styles.title}>S.O.L.I.D</Text>
         <Text style={styles.subtitle}>
-          Sistema Óptico de Identificação e{'\n'}
-          Localização de Serpentes no{'\n'}
-          Interior do Domínio Semiárido
+          Sistema Optico de Identificacao e{'\n'}
+          Localizacao de Serpentes no{'\n'}
+          Interior do Dominio Semiarido
         </Text>
       </View>
-
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Scanner')}
-        >
-          <Text style={styles.buttonText}> Identificar Cobra</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.disclaimer}>
-          Aproxime a câmera ou envie uma foto{'\n'}para identificar a espécie
-        </Text>
-      </View>
+      <Text style={styles.loading}>Carregando...</Text>
     </View>
   );
 }
@@ -44,7 +39,7 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: 24,
   },
-  logoContainer: {
+  content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,27 +62,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  bottomContainer: {
-    alignItems: 'center',
-    gap: 16,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 18,
-    paddingHorizontal: 48,
-    borderRadius: 12,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  disclaimer: {
+  loading: {
     color: colors.textSecondary,
     fontSize: 12,
     textAlign: 'center',
-    lineHeight: 18,
   },
 });
