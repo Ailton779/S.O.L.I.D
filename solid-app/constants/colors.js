@@ -1,10 +1,12 @@
 export const colors = {
-  background: '#0A0A0A',
-  card: '#1A1A1A',
-  primary: '#2D6A1F',
-  text: '#FFFFFF',
-  textSecondary: '#AAAAAA',
+  background: '#F2EDE4',
+  card: '#FFFFFF',
+  cardSecondary: '#EDE5D8',
+  primary: '#3D6B35',
+  text: '#2C2416',
+  textSecondary: '#7A6A55',
   danger: '#C0392B',
   safe: '#27AE60',
-  border: '#2D6A1F',
+  border: '#D5C9B8',
+  tabBar: '#EDE5D8',
 };
