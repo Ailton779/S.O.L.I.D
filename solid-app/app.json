@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "solid-app",
-    "slug": "solid-app",
+    "slug": "ailton779",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,6 +16,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ailton.solid",
+      "versioncode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,6 +26,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d4d1b7c5-b3c7-41a5-b2d9-cb54991941d2"
+      }
+    },
+    "owner": "ailtons-team"
   }
 }
