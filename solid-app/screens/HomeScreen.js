@@ -1,27 +1,27 @@
-import { View, Text, Image, StyleSheet, StatusBar, Animated } from 'react-native';
+import { View, Text, Image, StyleSheet, StatusBar, Animated, TouchableOpacity } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
 
+const menuItems = [
+  { id: 'Scanner', label: 'Identificar cobra', icon: 'camera-outline' },
+  { id: 'Map', label: 'Mapa de deteccoes', icon: 'map-outline' },
+  { id: 'Species', label: 'Especies da regiao', icon: 'eye-outline' },
+  { id: 'FirstAid', label: 'Primeiros socorros', icon: 'medkit-outline' },
+  { id: 'Info', label: 'Sobre o SOLID', icon: 'information-circle-outline' },
+];
+
 export default function HomeScreen({ navigation }) {
-  const logoScale = useRef(new Animated.Value(0.3)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.5)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
-  const titleY = useRef(new Animated.Value(20)).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
   const dotsOpacity = useRef(new Animated.Value(0)).current;
-  const dot1 = useRef(new Animated.Value(0.3)).current;
-  const dot2 = useRef(new Animated.Value(0.3)).current;
-  const dot3 = useRef(new Animated.Value(0.3)).current;
-
-  const pulseDot = (dot, delay) => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.delay(delay),
-        Animated.timing(dot, { toValue: 1, duration: 400, useNativeDriver: true }),
-        Animated.timing(dot, { toValue: 0.3, duration: 400, useNativeDriver: true }),
-      ])
-    ).start();
-  };
+  const menuOpacity = useRef(new Animated.Value(0)).current;
+  const menuItems_anim = menuItems.map(() => ({
+    opacity: useRef(new Animated.Value(0)).current,
+    translateY: useRef(new Animated.Value(16)).current,
+  }));
 
   useEffect(() => {
     Animated.sequence([
@@ -29,23 +29,21 @@ export default function HomeScreen({ navigation }) {
         Animated.spring(logoScale, { toValue: 1, friction: 5, tension: 80, useNativeDriver: true }),
         Animated.timing(logoOpacity, { toValue: 1, duration: 600, useNativeDriver: true }),
       ]),
-      Animated.parallel([
-        Animated.timing(titleOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.timing(titleY, { toValue: 0, duration: 500, useNativeDriver: true }),
-      ]),
-      Animated.timing(subtitleOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(titleOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.timing(subtitleOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(dotsOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start(() => {
-      pulseDot(dot1, 0);
-      pulseDot(dot2, 200);
-      pulseDot(dot3, 400);
+      setTimeout(() => {
+        Animated.timing(dotsOpacity, { toValue: 0, duration: 300, useNativeDriver: true }).start(() => {
+          Animated.stagger(80, menuItems_anim.map(item =>
+            Animated.parallel([
+              Animated.timing(item.opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+              Animated.timing(item.translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
+            ])
+          )).start();
+        });
+      }, 1500);
     });
-
-    const timer = setTimeout(() => {
-      navigation.replace('Main');
-    }, 3500);
-
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -53,28 +51,44 @@ export default function HomeScreen({ navigation }) {
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       <Animated.View style={[styles.logoContainer, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}>
-        <Image
-          source={require('../assets/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <Image source={require('../assets/logo.png')} style={styles.logo} resizeMode="contain" />
       </Animated.View>
 
-      <Animated.View style={[styles.titleContainer, { opacity: titleOpacity, transform: [{ translateY: titleY }] }]}>
-        <Text style={styles.title}>S.O.L.I.D</Text>
-      </Animated.View>
+      <Animated.Text style={[styles.title, { opacity: titleOpacity }]}>S.O.L.I.D</Animated.Text>
 
       <Animated.Text style={[styles.subtitle, { opacity: subtitleOpacity }]}>
-        Sistema Óptico de Identificação e{'\n'}
-        Localização de Serpentes no{'\n'}
-        Interior do Domínio Semiárido
+        Sistema Optico de Identificacao e{'\n'}Localizacao de Serpentes no{'\n'}Interior do Dominio Semiarido
       </Animated.Text>
 
-      <Animated.View style={[styles.dotsContainer, { opacity: dotsOpacity }]}>
-        <Animated.View style={[styles.dot, { opacity: dot1 }]} />
-        <Animated.View style={[styles.dot, { opacity: dot2 }]} />
-        <Animated.View style={[styles.dot, { opacity: dot3 }]} />
+      <Animated.View style={[styles.dots, { opacity: dotsOpacity }]}>
+        <View style={styles.dot} />
+        <View style={styles.dot} />
+        <View style={styles.dot} />
       </Animated.View>
+
+      <View style={styles.menu}>
+        {menuItems.map((item, index) => (
+          <Animated.View
+            key={item.id}
+            style={{
+              opacity: menuItems_anim[index].opacity,
+              transform: [{ translateY: menuItems_anim[index].translateY }],
+            }}
+          >
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(item.id)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuIcon}>
+                <Ionicons name={item.icon} size={18} color={colors.primary} />
+              </View>
+              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </Animated.View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -84,40 +98,68 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
+    paddingTop: 72,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
   },
   logoContainer: {
     marginBottom: 8,
   },
   logo: {
-    width: 160,
-    height: 160,
-  },
-  titleContainer: {
-    alignItems: 'center',
+    width: 100,
+    height: 100,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     color: colors.primary,
     letterSpacing: 8,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 18,
+    marginBottom: 16,
   },
-  dotsContainer: {
+  dots: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 24,
+    gap: 6,
+    marginBottom: 20,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.primary,
+  },
+  menu: {
+    width: '100%',
+    gap: 8,
+  },
+  menuItem: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: colors.border,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  menuIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: colors.cardSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuLabel: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
   },
 });
