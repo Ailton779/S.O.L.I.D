@@ -1,0 +1,39 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Ambiente virtual
+venv/
+.env
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Arquivos de log e temporários
+*.log
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+.env.local
+.env.*.local
+
+# Testes
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribuição
+dist/
+build/
+*.egg-info/
