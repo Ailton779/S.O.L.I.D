@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
 
 const steps = [
@@ -24,7 +23,7 @@ export default function FirstAidScreen({ navigation }) {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
+          <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Primeiros Socorros</Text>
         <View style={{ width: 32 }} />
@@ -32,7 +31,7 @@ export default function FirstAidScreen({ navigation }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.alertCard}>
-          <Ionicons name="warning-outline" size={20} color={colors.danger} />
+          <Text style={styles.alertIcon}>⚠️</Text>
           <Text style={styles.alertText}>
             Em caso de picada de cobra, busque atendimento medico imediatamente. Nao tente tratar por conta propria.
           </Text>
@@ -66,7 +65,7 @@ export default function FirstAidScreen({ navigation }) {
             </View>
             <View style={styles.contactRight}>
               <Text style={styles.contactNumber}>{c.number}</Text>
-              <Ionicons name="call-outline" size={14} color={colors.danger} />
+              <Text style={styles.callIcon}>📞</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -96,6 +95,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  backArrow: {
+    fontSize: 22,
+    color: colors.primary,
+  },
   headerTitle: {
     fontSize: 17,
     fontWeight: 'bold',
@@ -111,6 +114,9 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: 'flex-start',
     marginBottom: 20,
+  },
+  alertIcon: {
+    fontSize: 20,
   },
   alertText: {
     flex: 1,
@@ -197,6 +203,10 @@ const styles = StyleSheet.create({
   contactNumber: {
     fontSize: 14,
     fontWeight: 'bold',
+    color: colors.danger,
+  },
+  callIcon: {
+    fontSize: 14,
     color: colors.danger,
   },
 });

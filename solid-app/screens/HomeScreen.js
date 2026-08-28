@@ -1,14 +1,13 @@
 import { View, Text, Image, StyleSheet, StatusBar, Animated, TouchableOpacity } from 'react-native';
 import { useEffect, useRef } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
 
 const menuItems = [
-  { id: 'Scanner', label: 'Identificar cobra', icon: 'camera-outline' },
-  { id: 'Map', label: 'Mapa de deteccoes', icon: 'map-outline' },
-  { id: 'Species', label: 'Especies da regiao', icon: 'eye-outline' },
-  { id: 'FirstAid', label: 'Primeiros socorros', icon: 'medkit-outline' },
-  { id: 'Info', label: 'Sobre o SOLID', icon: 'information-circle-outline' },
+  { id: 'Scanner', label: 'Identificar cobra', icon: '📷' },
+  { id: 'Map', label: 'Mapa de deteccoes', icon: '🗺️' },
+  { id: 'Species', label: 'Especies da regiao', icon: '👁️' },
+  { id: 'FirstAid', label: 'Primeiros socorros', icon: '🏥' },
+  { id: 'Info', label: 'Sobre o SOLID', icon: 'ℹ️' },
 ];
 
 export default function HomeScreen({ navigation }) {
@@ -81,10 +80,10 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.7}
             >
               <View style={styles.menuIcon}>
-                <Ionicons name={item.icon} size={18} color={colors.primary} />
+                <Text style={styles.menuIconText}>{item.icon}</Text>
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+              <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
           </Animated.View>
         ))}
@@ -156,10 +155,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  menuIconText: {
+    fontSize: 16,
+  },
   menuLabel: {
     flex: 1,
     fontSize: 14,
     fontWeight: '500',
     color: colors.text,
+  },
+  menuArrow: {
+    fontSize: 16,
+    color: colors.textSecondary,
   },
 });

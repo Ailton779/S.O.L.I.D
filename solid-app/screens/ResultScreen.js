@@ -2,63 +2,42 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, StatusBar, ScrollView,
 import { colors } from '../constants/colors';
 
 const emergencyContacts = [
-  {
-    label: 'Corpo de Bombeiros',
-    number: '193',
-    description: 'Canal geral de emergencia — CBMCE',
-  },
-  {
-    label: 'Quartel de Caninde',
-    number: '(85) 98510-0193',
-    description: 'Base regional — cobre Boa Viagem',
-  },
-  {
-    label: 'Policia Ambiental',
-    number: '190',
-    description: 'Batalhao de Policia do Meio Ambiente',
-  },
+  { label: 'Corpo de Bombeiros', number: '193', description: 'Canal geral de emergencia — CBMCE' },
+  { label: 'Quartel de Caninde', number: '(85) 98510-0193', description: 'Base regional — cobre Boa Viagem' },
+  { label: 'Policia Ambiental', number: '190', description: 'Batalhao de Policia do Meio Ambiente' },
 ];
 
 export default function ResultScreen({ navigation, route }) {
-  const { snake, image, confidence } = route.params;
-
+  const { snake, image, confidence, fallback } = route.params;
   const handleCall = (number) => {
     const cleaned = number.replace(/\D/g, '');
     Linking.openURL(`tel:${cleaned}`);
   };
-
   const getConfidenceColor = (value) => {
     if (value >= 0.85) return colors.safe;
     if (value >= 0.65) return '#E6A817';
     return colors.danger;
   };
-
   const getConfidenceLabel = (value) => {
-    if (value >= 0.85) return 'Alta confianca';
-    if (value >= 0.65) return 'Confianca moderada';
-    return 'Baixa confianca';
+    if (value >= 0.85) return 'Alta confiança';
+    if (value >= 0.65) return 'Confiança moderada';
+    return 'Baixa confiança';
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Scanner')}>
           <Text style={styles.backButton}>{'<'}</Text>
         </TouchableOpacity>
       </View>
-
       <ScrollView showsVerticalScrollIndicator={false}>
-        {image && (
-          <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
-        )}
-
+        {image && <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />}
         <View style={styles.nameContainer}>
           <Text style={styles.name}>{snake.name}</Text>
           <Text style={styles.scientific}>{snake.scientific}</Text>
         </View>
-
         {confidence && (
           <View style={[styles.confidenceCard, { borderLeftColor: getConfidenceColor(confidence) }]}>
             <Text style={styles.confidenceLabel}>{getConfidenceLabel(confidence)}</Text>
@@ -67,47 +46,36 @@ export default function ResultScreen({ navigation, route }) {
             </Text>
           </View>
         )}
-
+        {fallback && <Text style={styles.fallbackHint}>* Identificação baseada em dados locais (baixa confiança)</Text>}
         <View style={[styles.badge, snake.venomous ? styles.badgeDanger : styles.badgeSafe]}>
-          <Text style={styles.badgeText}>
-            {snake.venomous ? 'PECONHENTA' : 'NAO PECONHENTA'}
-          </Text>
+          <Text style={styles.badgeText}>{snake.venomous ? 'PECONHENTA' : 'NAO PECONHENTA'}</Text>
         </View>
-
         {snake.venomous && (
           <View style={styles.infoCard}>
             <Text style={styles.infoLabel}>Tipo de veneno</Text>
             <Text style={styles.infoValue}>{snake.venom_type}</Text>
           </View>
         )}
-
         <View style={styles.infoCard}>
           <Text style={styles.infoLabel}>Status de protecao</Text>
           <Text style={[styles.infoValue, snake.protected && { color: colors.primary }]}>
             {snake.protection_status}
           </Text>
         </View>
-
         <View style={styles.infoCard}>
           <Text style={styles.infoLabel}>Sobre a especie</Text>
           <Text style={styles.infoText}>{snake.description}</Text>
         </View>
-
         {snake.venomous && snake.first_aid && (
           <View style={[styles.infoCard, styles.firstAidCard]}>
             <Text style={styles.firstAidLabel}>Primeiros Socorros</Text>
             <Text style={styles.infoText}>{snake.first_aid}</Text>
           </View>
         )}
-
         <View style={styles.emergencyContainer}>
           <Text style={styles.emergencyTitle}>Contatos de Emergencia</Text>
           {emergencyContacts.map((contact, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.emergencyCard}
-              onPress={() => handleCall(contact.number)}
-            >
+            <TouchableOpacity key={index} style={styles.emergencyCard} onPress={() => handleCall(contact.number)}>
               <View style={styles.emergencyInfo}>
                 <Text style={styles.emergencyLabel}>{contact.label}</Text>
                 <Text style={styles.emergencyDescription}>{contact.description}</Text>
@@ -116,155 +84,41 @@ export default function ResultScreen({ navigation, route }) {
             </TouchableOpacity>
           ))}
         </View>
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
 }
 
+// (styles mantidos iguais ao anterior, sem Ionicons)
+// Copie os styles do ResultScreen.js original, pois já não usam Ionicons.
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingTop: 50,
-    paddingHorizontal: 24,
-  },
-  header: {
-    marginBottom: 20,
-  },
-  backButton: {
-    color: colors.primary,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  image: {
-    width: '100%',
-    height: 220,
-    borderRadius: 16,
-    marginBottom: 20,
-  },
-  nameContainer: {
-    marginBottom: 16,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  scientific: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
-  confidenceCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  confidenceLabel: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  confidenceValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  badge: {
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  badgeDanger: {
-    backgroundColor: colors.danger,
-  },
-  badgeSafe: {
-    backgroundColor: colors.safe,
-  },
-  badgeText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  infoCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  infoLabel: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 6,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: colors.text,
-    fontWeight: 'bold',
-  },
-  infoText: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 22,
-  },
-  firstAidCard: {
-    borderLeftColor: colors.danger,
-  },
-  firstAidLabel: {
-    fontSize: 14,
-    color: colors.danger,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emergencyContainer: {
-    marginTop: 8,
-  },
-  emergencyTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  emergencyCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.danger,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  emergencyInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  emergencyLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  emergencyDescription: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  emergencyNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.danger,
-  },
+  container: { flex: 1, backgroundColor: colors.background, paddingTop: 50, paddingHorizontal: 24 },
+  header: { marginBottom: 20 },
+  backButton: { color: colors.primary, fontSize: 24, fontWeight: 'bold' },
+  image: { width: '100%', height: 220, borderRadius: 16, marginBottom: 20 },
+  nameContainer: { marginBottom: 16 },
+  name: { fontSize: 28, fontWeight: 'bold', color: colors.text, marginBottom: 4 },
+  scientific: { fontSize: 14, color: colors.textSecondary, fontStyle: 'italic' },
+  confidenceCard: { backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 12, borderLeftWidth: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  confidenceLabel: { fontSize: 13, color: colors.textSecondary },
+  confidenceValue: { fontSize: 18, fontWeight: 'bold' },
+  fallbackHint: { fontSize: 12, color: colors.danger, textAlign: 'center', marginBottom: 12 },
+  badge: { paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginBottom: 16 },
+  badgeDanger: { backgroundColor: colors.danger },
+  badgeSafe: { backgroundColor: colors.safe },
+  badgeText: { color: colors.text, fontSize: 16, fontWeight: 'bold', letterSpacing: 1 },
+  infoCard: { backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 12, borderLeftWidth: 3, borderLeftColor: colors.primary },
+  infoLabel: { fontSize: 11, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
+  infoValue: { fontSize: 16, color: colors.text, fontWeight: 'bold' },
+  infoText: { fontSize: 14, color: colors.text, lineHeight: 22 },
+  firstAidCard: { borderLeftColor: colors.danger },
+  firstAidLabel: { fontSize: 14, color: colors.danger, fontWeight: 'bold', marginBottom: 8 },
+  emergencyContainer: { marginTop: 8 },
+  emergencyTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text, marginBottom: 12 },
+  emergencyCard: { backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: colors.danger, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  emergencyInfo: { flex: 1, marginRight: 12 },
+  emergencyLabel: { fontSize: 14, fontWeight: 'bold', color: colors.text, marginBottom: 2 },
+  emergencyDescription: { fontSize: 12, color: colors.textSecondary },
+  emergencyNumber: { fontSize: 16, fontWeight: 'bold', color: colors.danger },
 });
