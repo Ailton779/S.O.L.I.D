@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, ActivityIndicator, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { colors } from '../constants/colors';
-import { snakes } from '../constants/snakes';
 import { analyzeSnakeImage } from '../services/api';
 
 export default function ScannerScreen({ navigation }) {
@@ -21,27 +20,38 @@ export default function ScannerScreen({ navigation }) {
 
   const takePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (permission.status !== 'granted') { alert('Permissao de camera negada.'); return; }
+    if (permission.status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Permissão de câmera negada.');
+      return;
+    }
     const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [4, 3], quality: 1 });
     if (!result.canceled) setImage(result.assets[0].uri);
   };
 
   const analyzeImage = async () => {
+    if (!image) return;
     setLoading(true);
-    const apiResult = await analyzeSnakeImage(image);
-    if (apiResult && apiResult.success) {
-      navigation.navigate('Result', { snake: apiResult.data, confidence: apiResult.confidence, image });
-    } else {
-      const fallback = snakes[Math.floor(Math.random() * snakes.length)];
-      navigation.navigate('Result', { snake: fallback, confidence: 0.4, image, fallback: true });
+    try {
+      const apiResult = await analyzeSnakeImage(image);
+      if (apiResult && apiResult.success) {
+        navigation.navigate('Result', {
+          snake: apiResult.data,
+          confidence: apiResult.confidence,
+          image,
+        });
+      } else {
+        Alert.alert('Erro', 'A API não retornou dados válidos.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', `Falha na requisição: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backArrow}>‹</Text>
@@ -56,7 +66,7 @@ export default function ScannerScreen({ navigation }) {
         ) : (
           <View style={styles.placeholder}>
             <Text style={styles.placeholderIcon}>📷</Text>
-            <Text style={styles.placeholderText}>Toque para abrir a camera</Text>
+            <Text style={styles.placeholderText}>Toque para abrir a câmera</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -100,9 +110,9 @@ const styles = StyleSheet.create({
   placeholderIcon: { fontSize: 40 },
   placeholderText: { fontSize: 13, color: colors.textSecondary },
   bottomContainer: { gap: 10 },
-  buttonSecondary: { borderWidth: 0.5, borderColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  buttonSecondary: { borderWidth: 0.5, borderColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   buttonSecondaryText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
-  buttonPrimary: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  buttonPrimary: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   buttonPrimaryText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   buttonDisabled: { opacity: 0.4 },
   loadingHint: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', marginTop: 4 },

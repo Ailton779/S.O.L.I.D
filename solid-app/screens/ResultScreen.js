@@ -8,7 +8,7 @@ const emergencyContacts = [
 ];
 
 export default function ResultScreen({ navigation, route }) {
-  const { snake, image, confidence, fallback } = route.params;
+  const { snake, image, confidence } = route.params;
   const handleCall = (number) => {
     const cleaned = number.replace(/\D/g, '');
     Linking.openURL(`tel:${cleaned}`);
@@ -46,7 +46,6 @@ export default function ResultScreen({ navigation, route }) {
             </Text>
           </View>
         )}
-        {fallback && <Text style={styles.fallbackHint}>* Identificação baseada em dados locais (baixa confiança)</Text>}
         <View style={[styles.badge, snake.venomous ? styles.badgeDanger : styles.badgeSafe]}>
           <Text style={styles.badgeText}>{snake.venomous ? 'PECONHENTA' : 'NAO PECONHENTA'}</Text>
         </View>
@@ -90,8 +89,6 @@ export default function ResultScreen({ navigation, route }) {
   );
 }
 
-// (styles mantidos iguais ao anterior, sem Ionicons)
-// Copie os styles do ResultScreen.js original, pois já não usam Ionicons.
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, paddingTop: 50, paddingHorizontal: 24 },
   header: { marginBottom: 20 },
@@ -103,7 +100,6 @@ const styles = StyleSheet.create({
   confidenceCard: { backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 12, borderLeftWidth: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   confidenceLabel: { fontSize: 13, color: colors.textSecondary },
   confidenceValue: { fontSize: 18, fontWeight: 'bold' },
-  fallbackHint: { fontSize: 12, color: colors.danger, textAlign: 'center', marginBottom: 12 },
   badge: { paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginBottom: 16 },
   badgeDanger: { backgroundColor: colors.danger },
   badgeSafe: { backgroundColor: colors.safe },

@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 import os
 import json
 import re
@@ -6,6 +6,7 @@ import base64
 import httpx
 import asyncio
 from PIL import Image
+from io import BytesIO
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +17,6 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 if not API_KEY:
     raise ValueError("GEMINI_API_KEY não definida no .env")
 
-# Lista de modelos para tentar (em ordem de preferência)
 MODELS = [
     "gemini-3.5-flash",
     "gemini-2.5-pro",
@@ -24,13 +24,9 @@ MODELS = [
     "gemini-3.6-flash",
 ]
 
-@router.post("/analyze")
-async def analyze_image(image: UploadFile = File(...)):
-    contents = await image.read()
-    if not contents:
-        raise HTTPException(status_code=400, detail="Arquivo vazio")
-
-    img_base64 = base64.b64encode(contents).decode('utf-8')
+async def process_image_data(image_data: bytes):
+    """Processa a imagem e chama o Gemini."""
+    img_base64 = base64.b64encode(image_data).decode('utf-8')
 
     prompt = """
     Você é um especialista em herpetologia da região do sertão do Ceará, Brasil (especificamente na cidade de Boa Viagem). A foto que você vai analisar foi tirada nessa região, que é caracterizada pelo bioma Caatinga.
@@ -73,7 +69,7 @@ async def analyze_image(image: UploadFile = File(...)):
 
     last_error = None
     max_attempts = 5
-    base_delay = 2  # segundos
+    base_delay = 2
 
     for attempt in range(1, max_attempts + 1):
         for model_name in MODELS:
@@ -112,15 +108,38 @@ async def analyze_image(image: UploadFile = File(...)):
                 last_error = f"Erro no modelo {model_name}: {str(e)}"
                 continue
 
-        # Se chegou aqui, todos os modelos falharam nessa tentativa
         if attempt < max_attempts:
-            wait_time = base_delay * (2 ** (attempt - 1))  # 2, 4, 8, 16
-            await asyncio.sleep(wait_time)
+            await asyncio.sleep(base_delay * (2 ** (attempt - 1)))
         else:
             break
 
-    # Se todas as tentativas falharem
     raise HTTPException(
         status_code=503,
         detail=f"Serviço temporariamente indisponível. Todas as {max_attempts} tentativas falharam. Último erro: {last_error}. Tente novamente em alguns minutos."
     )
+
+@router.post("/analyze")
+async def analyze_image(request: Request):
+    # Tentar ler o corpo como JSON
+    try:
+        body = await request.json()
+    except Exception:
+        # Se não for JSON, tenta multipart (para compatibilidade com curl -F)
+        form = await request.form()
+        if "image" in form:
+            image_file = form["image"]
+            contents = await image_file.read()
+            if not contents:
+                raise HTTPException(status_code=400, detail="Arquivo vazio")
+            return await process_image_data(contents)
+        raise HTTPException(status_code=400, detail="Requisição deve ser JSON ou multipart com 'image'")
+
+    # Se for JSON, verifica se tem image_base64
+    if "image_base64" in body:
+        try:
+            image_data = base64.b64decode(body["image_base64"])
+            return await process_image_data(image_data)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Erro ao decodificar base64: {str(e)}")
+    else:
+        raise HTTPException(status_code=400, detail="JSON deve conter campo 'image_base64'")
