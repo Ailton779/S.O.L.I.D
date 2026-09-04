@@ -25,8 +25,9 @@ MODELS = [
 ]
 
 async def process_image_data(image_data: bytes):
-    """Processa a imagem e chama o Gemini."""
+    print("1. Iniciando processamento...")
     img_base64 = base64.b64encode(image_data).decode('utf-8')
+    print("2. Base64 gerado, tamanho:", len(img_base64))
 
     prompt = """
     Você é um especialista em herpetologia da região do sertão do Ceará, Brasil (especificamente na cidade de Boa Viagem). A foto que você vai analisar foi tirada nessa região, que é caracterizada pelo bioma Caatinga.
@@ -72,12 +73,15 @@ async def process_image_data(image_data: bytes):
     base_delay = 2
 
     for attempt in range(1, max_attempts + 1):
+        print(f"Tentativa {attempt}...")
         for model_name in MODELS:
             url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={API_KEY}"
             try:
+                print(f"  Chamando modelo {model_name}...")
                 async with httpx.AsyncClient(timeout=60.0) as client:
                     response = await client.post(url, json=payload)
                     if response.status_code == 200:
+                        print(f"  Modelo {model_name} respondeu com sucesso.")
                         result = response.json()
                         text = result['candidates'][0]['content']['parts'][0]['text']
                         json_match = re.search(r'\{.*\}', text, re.DOTALL)
@@ -86,6 +90,7 @@ async def process_image_data(image_data: bytes):
                             confidence = data.get("confidence", 0.9)
                             if not isinstance(confidence, (int, float)):
                                 confidence = 0.9
+                            print("  JSON extraído com sucesso.")
                             return {
                                 "success": True,
                                 "confidence": confidence,
@@ -94,25 +99,33 @@ async def process_image_data(image_data: bytes):
                                 "attempt": attempt
                             }
                         else:
+                            print("  JSON não encontrado na resposta.")
                             continue
                     elif response.status_code == 503:
                         last_error = f"Modelo {model_name} sobrecarregado (tentativa {attempt})"
+                        print(f"  {last_error}")
                         continue
                     else:
                         last_error = f"Modelo {model_name} retornou {response.status_code}"
+                        print(f"  {last_error}")
                         continue
             except httpx.TimeoutException:
                 last_error = f"Timeout no modelo {model_name} (tentativa {attempt})"
+                print(f"  {last_error}")
                 continue
             except Exception as e:
                 last_error = f"Erro no modelo {model_name}: {str(e)}"
+                print(f"  {last_error}")
                 continue
 
         if attempt < max_attempts:
-            await asyncio.sleep(base_delay * (2 ** (attempt - 1)))
+            wait_time = base_delay * (2 ** (attempt - 1))
+            print(f"Aguardando {wait_time}s antes da próxima tentativa...")
+            await asyncio.sleep(wait_time)
         else:
             break
 
+    print("Todas as tentativas falharam.")
     raise HTTPException(
         status_code=503,
         detail=f"Serviço temporariamente indisponível. Todas as {max_attempts} tentativas falharam. Último erro: {last_error}. Tente novamente em alguns minutos."
@@ -120,26 +133,30 @@ async def process_image_data(image_data: bytes):
 
 @router.post("/analyze")
 async def analyze_image(request: Request):
-    # Tentar ler o corpo como JSON
+    print("Requisição recebida em /analyze")
     try:
         body = await request.json()
+        print("Corpo JSON recebido.")
     except Exception:
-        # Se não for JSON, tenta multipart (para compatibilidade com curl -F)
+        print("Corpo não é JSON, tentando multipart...")
         form = await request.form()
         if "image" in form:
             image_file = form["image"]
             contents = await image_file.read()
             if not contents:
                 raise HTTPException(status_code=400, detail="Arquivo vazio")
+            print("Imagem recebida via multipart.")
             return await process_image_data(contents)
         raise HTTPException(status_code=400, detail="Requisição deve ser JSON ou multipart com 'image'")
 
-    # Se for JSON, verifica se tem image_base64
     if "image_base64" in body:
         try:
             image_data = base64.b64decode(body["image_base64"])
+            print("Base64 decodificado, tamanho:", len(image_data))
             return await process_image_data(image_data)
         except Exception as e:
+            print(f"Erro ao decodificar base64: {e}")
             raise HTTPException(status_code=400, detail=f"Erro ao decodificar base64: {str(e)}")
     else:
+        print("JSON não contém image_base64")
         raise HTTPException(status_code=400, detail="JSON deve conter campo 'image_base64'")

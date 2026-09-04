@@ -31,8 +31,10 @@ export default function ScannerScreen({ navigation }) {
   const analyzeImage = async () => {
     if (!image) return;
     setLoading(true);
+    console.log('[APP] Iniciando análise...');
     try {
       const apiResult = await analyzeSnakeImage(image);
+      console.log('[APP] Resultado da API:', apiResult);
       if (apiResult && apiResult.success) {
         navigation.navigate('Result', {
           snake: apiResult.data,
@@ -40,12 +42,15 @@ export default function ScannerScreen({ navigation }) {
           image,
         });
       } else {
+        console.log('[APP] API retornou dados inválidos:', apiResult);
         Alert.alert('Erro', 'A API não retornou dados válidos.');
       }
     } catch (error) {
+      console.error('[APP] Erro na análise:', error);
       Alert.alert('Erro', `Falha na requisição: ${error.message}`);
     } finally {
       setLoading(false);
+      console.log('[APP] Loading finalizado.');
     }
   };
 
