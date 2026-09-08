@@ -7,8 +7,10 @@ export const snakes = [
     venom_type: 'Hemotóxico',
     protected: false,
     protection_status: 'Não ameaçada',
-    description: 'Endêmica do Nordeste brasileiro, é a principal causa de acidentes ofídicos na Caatinga. Coloração parda com manchas escuras.',
+    description: 'Endêmica do Nordeste brasileiro, é a principal causa de acidentes ofídicos na Caatinga. Coloração parda com manchas escuras em forma de triângulo.',
     first_aid: 'Imobilize o membro afetado, não faça torniquete e busque atendimento médico imediatamente.',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Bothrops_erythromelas.jpg/320px-Bothrops_erythromelas.jpg',
+    characteristics: ['Coloração parda com manchas escuras', 'Cabeça triangular bem definida', 'Corpo robusto e curto', 'Escamas quilhadas'],
   },
   {
     id: 2,
@@ -20,6 +22,8 @@ export const snakes = [
     protection_status: 'Não ameaçada',
     description: 'Reconhecível pelo guizo na cauda. Presente em áreas abertas da Caatinga. Veneno de ação neurológica, extremamente perigoso.',
     first_aid: 'Não movimente a vítima, mantenha-a deitada e busque hospital com antipeçonhento urgente.',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Crotalus_durissus_terrificus.jpg/320px-Crotalus_durissus_terrificus.jpg',
+    characteristics: ['Guizo característico na cauda', 'Coloração amarelada com losangos', 'Cabeça larga e triangular', 'Fosseta loreal visível'],
   },
   {
     id: 3,
@@ -31,6 +35,8 @@ export const snakes = [
     protection_status: 'Monitorada pelo ICMBio/RAN',
     description: 'A mais venenosa do Brasil. Anéis coloridos em vermelho, preto e branco. Endêmica do Nordeste.',
     first_aid: 'Busque atendimento médico imediatamente. Não tente sugar o veneno ou fazer cortes.',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Micrurus_ibiboboca.jpg/320px-Micrurus_ibiboboca.jpg',
+    characteristics: ['Anéis vermelhos, pretos e brancos', 'Corpo cilíndrico e esbelto', 'Cabeça pequena e arredondada', 'Focinho vermelho'],
   },
   {
     id: 4,
@@ -42,6 +48,8 @@ export const snakes = [
     protection_status: 'Não ameaçada',
     description: 'Imita visualmente a coral-verdadeira, sendo frequentemente morta por engano. Não representa perigo para humanos.',
     first_aid: null,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Oxyrhopus_trigeminus.jpg/320px-Oxyrhopus_trigeminus.jpg',
+    characteristics: ['Anéis vermelhos e pretos sem branco', 'Corpo mais robusto que a coral-verdadeira', 'Cabeça levemente distinta do corpo', 'Olhos maiores'],
   },
   {
     id: 5,
@@ -53,6 +61,8 @@ export const snakes = [
     protection_status: 'Não ameaçada',
     description: 'A espécie mais comum da Caatinga. Ágil e arborícola, não representa risco significativo para humanos.',
     first_aid: null,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Philodryas_nattereri.jpg/320px-Philodryas_nattereri.jpg',
+    characteristics: ['Coloração verde ou parda', 'Corpo esbelto e alongado', 'Olhos grandes', 'Muito ágil'],
   },
   {
     id: 6,
@@ -64,5 +74,7 @@ export const snakes = [
     protection_status: 'Protegida em vários estados',
     description: 'Mata por constrição, não possui veneno. Muito caçada no interior. Importante para o equilíbrio do ecossistema.',
     first_aid: null,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Boa_constrictor_1.jpg/320px-Boa_constrictor_1.jpg',
+    characteristics: ['Corpo grande e robusto', 'Padrão de manchas em selas', 'Cabeça alongada e distinta', 'Pode atingir mais de 3 metros'],
   },
 ];

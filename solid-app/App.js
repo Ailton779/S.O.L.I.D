@@ -5,7 +5,6 @@ import { colors } from './constants/colors';
 import HomeScreen from './screens/HomeScreen';
 import ScannerScreen from './screens/ScannerScreen';
 import ResultScreen from './screens/ResultScreen';
-import MapScreen from './screens/MapScreen';
 import SpeciesScreen from './screens/SpeciesScreen';
 import InfoScreen from './screens/InfoScreen';
 import FirstAidScreen from './screens/FirstAidScreen';
@@ -23,14 +22,9 @@ export default function App() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ animation: 'none' }}
-        />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ animation: 'none' }} />
         <Stack.Screen name="Scanner" component={ScannerScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
-        <Stack.Screen name="Map" component={MapScreen} />
         <Stack.Screen name="Species" component={SpeciesScreen} />
         <Stack.Screen name="Info" component={InfoScreen} />
         <Stack.Screen name="FirstAid" component={FirstAidScreen} />

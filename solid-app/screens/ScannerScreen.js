@@ -82,6 +82,21 @@ export default function ScannerScreen({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
+  style={[styles.buttonSecondary, { marginBottom: 8 }]}
+  onPress={async () => {
+    try {
+      const r = await fetch('https://s-o-l-i-d.onrender.com/');
+      const j = await r.json();
+      alert('Conexao OK: ' + JSON.stringify(j));
+    } catch (e) {
+      alert('ERRO: ' + e.message);
+    }
+  }}
+>
+  <Text style={styles.buttonSecondaryText}>Testar Conexao</Text>
+</TouchableOpacity>
+
+        <TouchableOpacity
           style={[styles.buttonPrimary, (!image || loading) && styles.buttonDisabled]}
           onPress={analyzeImage}
           disabled={!image || loading}
