@@ -1,22 +1,22 @@
-import * as FileSystem from 'expo-file-system';
-
 const API_URL = 'https://s-o-l-i-d.onrender.com';
 
 export async function analyzeSnakeImage(imageUri) {
   try {
-    console.log('[API] Lendo imagem como base64...');
-    const base64 = await FileSystem.readAsStringAsync(imageUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-    console.log('[API] Base64 lido, tamanho:', base64.length);
+    console.log('[API] Iniciando fetch direto da URI:', imageUri);
 
-    console.log('[API] Enviando para:', API_URL);
+    const formData = new FormData();
+    formData.append('image', {
+      uri: imageUri,
+      type: 'image/jpeg',
+      name: 'snake.jpg',
+    });
+
     const response = await fetch(`${API_URL}/analyze`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
       },
-      body: JSON.stringify({ image_base64: base64 }),
+      body: formData,
     });
 
     if (!response.ok) {
