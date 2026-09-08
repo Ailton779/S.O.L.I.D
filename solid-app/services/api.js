@@ -1,9 +1,9 @@
 import * as FileSystem from 'expo-file-system';
+import axios from 'axios';
 
-const API_URL = 'https://helping-cactus-mulled.ngrok-free.dev';
+const API_URL = 'https://s-o-l-i-d.onrender.com';
 
 export async function analyzeSnakeImage(imageUri) {
-  console.log('[API] Iniciando...');
   try {
     console.log('[API] Lendo imagem como base64...');
     const base64 = await FileSystem.readAsStringAsync(imageUri, {
@@ -11,28 +11,26 @@ export async function analyzeSnakeImage(imageUri) {
     });
     console.log('[API] Base64 lido, tamanho:', base64.length);
 
-    const payload = JSON.stringify({ image_base64: base64 });
-    console.log('[API] Payload tamanho:', payload.length);
-
     console.log('[API] Enviando para:', API_URL);
-    const response = await fetch(`${API_URL}/analyze`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload,
-    });
+    const response = await axios.post(
+      `${API_URL}/analyze`,
+      { image_base64: base64 },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 120000,
+      }
+    );
 
-    console.log('[API] Status da resposta:', response.status);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[API] Erro HTTP:', errorText);
-      throw new Error(`Erro ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log('[API] Dados recebidos:', data);
-    return data;
+    console.log('[API] Status:', response.status);
+    console.log('[API] Dados recebidos:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('[API] Falha na requisição:', error.message);
+    console.error('[API] Falha:', error.message);
+    if (error.response) {
+      console.error('[API] Erro:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('[API] Sem resposta do servidor');
+    }
     return null;
   }
 }

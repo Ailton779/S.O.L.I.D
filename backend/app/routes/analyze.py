@@ -15,13 +15,13 @@ router = APIRouter()
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 if not API_KEY:
-    raise ValueError("GEMINI_API_KEY não definida no .env")
+    raise ValueError("GEMINI_API_KEY nao definida no .env")
 
 MODELS = [
-    "gemini-3.5-flash",
-    "gemini-2.5-pro",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
     "gemini-2.5-flash-lite",
-    "gemini-3.6-flash",
 ]
 
 async def process_image_data(image_data: bytes):
@@ -30,33 +30,31 @@ async def process_image_data(image_data: bytes):
     print("2. Base64 gerado, tamanho:", len(img_base64))
 
     prompt = """
-    Você é um especialista em herpetologia da região do sertão do Ceará, Brasil (especificamente na cidade de Boa Viagem). A foto que você vai analisar foi tirada nessa região, que é caracterizada pelo bioma Caatinga.
+    Voce e um especialista em herpetologia da regiao do sertao do Ceara, Brasil (especificamente na cidade de Boa Viagem). A foto que voce vai analisar foi tirada nessa regiao, que e caracterizada pelo bioma Caatinga.
 
-    Sua tarefa é identificar a espécie de cobra na imagem com o MAIOR NÍVEL DE ESPECIFICIDADE POSSÍVEL, priorizando as espécies típicas da Caatinga e do Nordeste brasileiro.
+    Sua tarefa e identificar a especie de cobra na imagem com o MAIOR NIVEL DE ESPECIFICIDADE POSSIVEL, priorizando as especies tipicas da Caatinga e do Nordeste brasileiro.
 
-    As espécies mais comuns na região são:
-    - Jararaca-da-seca (Bothrops erythromelas) - PEÇONHENTA, comum na Caatinga.
-    - Cascavel (Crotalus durissus) - PEÇONHENTA, com guizo na cauda.
-    - Coral-verdadeira (Micrurus ibiboboca) - PEÇONHENTA, anéis vermelho/preto/branco.
+    As especies mais comuns na regiao sao:
+    - Jararaca-da-seca (Bothrops erythromelas) - PECONHENTA, comum na Caatinga.
+    - Cascavel (Crotalus durissus) - PECONHENTA, com guizo na cauda.
+    - Coral-verdadeira (Micrurus ibiboboca) - PECONHENTA, aneis vermelho/preto/branco.
     - Coral-falsa (Oxyrhopus trigeminus) - INOFENSIVA, imita a coral-verdadeira.
-    - Cobra-cipó (Philodryas nattereri) - INOFENSIVA, ágil e esverdeada.
+    - Cobra-cipo (Philodryas nattereri) - INOFENSIVA, agil e esverdeada.
     - Jiboia (Boa constrictor) - INOFENSIVA, grande e manchada.
-    - Cobra-espada (Dryophylax phoenix) - LEVEMENTE PEÇONHENTA, comum no Cariri.
-    - Falsa-coral (Oxyrhopus guibei) - INOFENSIVA, semelhante à coral-falsa.
 
     Responda APENAS com um JSON no seguinte formato:
     {
-        "name": "Nome popular da cobra (use o nome mais comum na região)",
-        "scientific": "Nome científico completo",
+        "name": "Nome popular da cobra",
+        "scientific": "Nome cientifico completo",
         "venomous": true/false,
-        "venom_type": "Tipo de veneno (ex: Neurotóxico, Hemotóxico, etc.) ou null",
+        "venom_type": "Tipo de veneno ou null",
         "protected": true/false,
-        "protection_status": "Status de proteção",
-        "description": "Breve descrição da espécie, destacando características marcantes visíveis na foto",
-        "first_aid": "Primeiros socorros em caso de picada (se for venenosa), ou null",
-        "confidence": "Número entre 0.0 e 1.0 indicando o quão confiante você está"
+        "protection_status": "Status de protecao",
+        "description": "Breve descricao da especie",
+        "first_aid": "Primeiros socorros se for venenosa, ou null",
+        "confidence": 0.0
     }
-    IMPORTANTE: Retorne APENAS o JSON, sem texto adicional.
+    IMPORTANTE: Retorne APENAS o JSON, sem texto adicional. confidence deve ser um numero entre 0.0 e 1.0.
     """
 
     payload = {
@@ -69,19 +67,19 @@ async def process_image_data(image_data: bytes):
     }
 
     last_error = None
-    max_attempts = 5
+    max_attempts = 3
     base_delay = 2
 
     for attempt in range(1, max_attempts + 1):
         print(f"Tentativa {attempt}...")
         for model_name in MODELS:
-            url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={API_KEY}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={API_KEY}"
             try:
                 print(f"  Chamando modelo {model_name}...")
                 async with httpx.AsyncClient(timeout=60.0) as client:
                     response = await client.post(url, json=payload)
+                    print(f"  Status: {response.status_code}")
                     if response.status_code == 200:
-                        print(f"  Modelo {model_name} respondeu com sucesso.")
                         result = response.json()
                         text = result['candidates'][0]['content']['parts'][0]['text']
                         json_match = re.search(r'\{.*\}', text, re.DOTALL)
@@ -89,8 +87,11 @@ async def process_image_data(image_data: bytes):
                             data = json.loads(json_match.group())
                             confidence = data.get("confidence", 0.9)
                             if not isinstance(confidence, (int, float)):
-                                confidence = 0.9
-                            print("  JSON extraído com sucesso.")
+                                try:
+                                    confidence = float(confidence)
+                                except:
+                                    confidence = 0.9
+                            print(f"  Sucesso com {model_name}.")
                             return {
                                 "success": True,
                                 "confidence": confidence,
@@ -99,18 +100,19 @@ async def process_image_data(image_data: bytes):
                                 "attempt": attempt
                             }
                         else:
-                            print("  JSON não encontrado na resposta.")
+                            last_error = f"JSON nao encontrado na resposta de {model_name}"
+                            print(f"  {last_error}")
                             continue
                     elif response.status_code == 503:
-                        last_error = f"Modelo {model_name} sobrecarregado (tentativa {attempt})"
+                        last_error = f"Modelo {model_name} sobrecarregado"
                         print(f"  {last_error}")
                         continue
                     else:
-                        last_error = f"Modelo {model_name} retornou {response.status_code}"
+                        last_error = f"Modelo {model_name} retornou {response.status_code}: {response.text[:200]}"
                         print(f"  {last_error}")
                         continue
             except httpx.TimeoutException:
-                last_error = f"Timeout no modelo {model_name} (tentativa {attempt})"
+                last_error = f"Timeout no modelo {model_name}"
                 print(f"  {last_error}")
                 continue
             except Exception as e:
@@ -120,25 +122,21 @@ async def process_image_data(image_data: bytes):
 
         if attempt < max_attempts:
             wait_time = base_delay * (2 ** (attempt - 1))
-            print(f"Aguardando {wait_time}s antes da próxima tentativa...")
+            print(f"Aguardando {wait_time}s...")
             await asyncio.sleep(wait_time)
-        else:
-            break
 
-    print("Todas as tentativas falharam.")
     raise HTTPException(
         status_code=503,
-        detail=f"Serviço temporariamente indisponível. Todas as {max_attempts} tentativas falharam. Último erro: {last_error}. Tente novamente em alguns minutos."
+        detail=f"Servico indisponivel. Ultimo erro: {last_error}"
     )
 
 @router.post("/analyze")
 async def analyze_image(request: Request):
-    print("Requisição recebida em /analyze")
-    try:
-        body = await request.json()
-        print("Corpo JSON recebido.")
-    except Exception:
-        print("Corpo não é JSON, tentando multipart...")
+    print("Requisicao recebida em /analyze")
+    content_type = request.headers.get("content-type", "")
+    print(f"Content-Type: {content_type}")
+
+    if "multipart" in content_type:
         form = await request.form()
         if "image" in form:
             image_file = form["image"]
@@ -147,16 +145,16 @@ async def analyze_image(request: Request):
                 raise HTTPException(status_code=400, detail="Arquivo vazio")
             print("Imagem recebida via multipart.")
             return await process_image_data(contents)
-        raise HTTPException(status_code=400, detail="Requisição deve ser JSON ou multipart com 'image'")
+        raise HTTPException(status_code=400, detail="Multipart sem campo 'image'")
 
-    if "image_base64" in body:
-        try:
+    try:
+        body = await request.json()
+        if "image_base64" in body:
             image_data = base64.b64decode(body["image_base64"])
             print("Base64 decodificado, tamanho:", len(image_data))
             return await process_image_data(image_data)
-        except Exception as e:
-            print(f"Erro ao decodificar base64: {e}")
-            raise HTTPException(status_code=400, detail=f"Erro ao decodificar base64: {str(e)}")
-    else:
-        print("JSON não contém image_base64")
         raise HTTPException(status_code=400, detail="JSON deve conter campo 'image_base64'")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao processar requisicao: {str(e)}")
