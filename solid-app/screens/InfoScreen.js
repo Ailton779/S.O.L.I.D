@@ -59,12 +59,22 @@ export default function InfoScreen({ navigation }) {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Desenvolvido por</Text>
           <View style={styles.devRow}>
+            <Ionicons name="school-outline" size={16} color={colors.primary} />
+            <Text style={styles.devText}>
+              <Text style={styles.devName}>Professor Orientador:</Text> Johnny Rocha Crisostomo
+            </Text>
+          </View>
+          <View style={styles.devRow}>
             <Ionicons name="code-slash-outline" size={16} color={colors.primary} />
-            <Text style={styles.devText}><Text style={styles.devName}>Ailton</Text> — Desenvolvimento</Text>
+            <Text style={styles.devText}>
+              <Text style={styles.devName}>José Ailton Carneiro Alves Júnior</Text> — Desenvolvimento
+            </Text>
           </View>
           <View style={styles.devRow}>
             <Ionicons name="document-text-outline" size={16} color={colors.primary} />
-            <Text style={styles.devText}><Text style={styles.devName}>Germano</Text> — Artigo Científico</Text>
+            <Text style={styles.devText}>
+              <Text style={styles.devName}>Germano de Oliveira Moraes e Ronald Vieira Carneiro</Text> — Artigo Científico
+            </Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.devRow}>

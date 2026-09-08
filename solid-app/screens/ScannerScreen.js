@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, ActivityIndicator, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
 import { analyzeSnakeImage } from '../services/api';
 
@@ -59,7 +60,7 @@ export default function ScannerScreen({ navigation }) {
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>‹</Text>
+          <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Identificar Cobra</Text>
         <View style={{ width: 32 }} />
@@ -70,7 +71,7 @@ export default function ScannerScreen({ navigation }) {
           <Image source={{ uri: image }} style={styles.preview} resizeMode="cover" />
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderIcon}>📷</Text>
+            <Ionicons name="camera-outline" size={40} color={colors.textSecondary} />
             <Text style={styles.placeholderText}>Toque para abrir a câmera</Text>
           </View>
         )}
@@ -78,23 +79,9 @@ export default function ScannerScreen({ navigation }) {
 
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.buttonSecondary} onPress={pickImage}>
-          <Text style={styles.buttonSecondaryText}>🖼️ Escolher da Galeria</Text>
+          <Ionicons name="images-outline" size={18} color={colors.primary} />
+          <Text style={styles.buttonSecondaryText}>Escolher da Galeria</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-  style={[styles.buttonSecondary, { marginBottom: 8 }]}
-  onPress={async () => {
-    try {
-      const r = await fetch('https://s-o-l-i-d.onrender.com/');
-      const j = await r.json();
-      alert('Conexao OK: ' + JSON.stringify(j));
-    } catch (e) {
-      alert('ERRO: ' + e.message);
-    }
-  }}
->
-  <Text style={styles.buttonSecondaryText}>Testar Conexao</Text>
-</TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.buttonPrimary, (!image || loading) && styles.buttonDisabled]}
@@ -107,7 +94,10 @@ export default function ScannerScreen({ navigation }) {
               <Text style={styles.buttonPrimaryText}>Analisando...</Text>
             </View>
           ) : (
-            <Text style={styles.buttonPrimaryText}>🔍 Analisar Foto</Text>
+            <>
+              <Ionicons name="search-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.buttonPrimaryText}>Analisar Foto</Text>
+            </>
           )}
         </TouchableOpacity>
         {loading && (
@@ -122,17 +112,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, paddingTop: 56, paddingHorizontal: 24, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   backBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  backArrow: { fontSize: 22, color: colors.primary },
   headerTitle: { fontSize: 17, fontWeight: 'bold', color: colors.text },
   previewContainer: { flex: 1, borderRadius: 16, overflow: 'hidden', borderWidth: 0.5, borderColor: colors.border, marginBottom: 20 },
-  preview: { flex: 1 },
+  preview: { flex: 1, width: '100%', height: '100%' },
   placeholder: { flex: 1, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  placeholderIcon: { fontSize: 40 },
   placeholderText: { fontSize: 13, color: colors.textSecondary },
   bottomContainer: { gap: 10 },
-  buttonSecondary: { borderWidth: 0.5, borderColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  buttonSecondary: { borderWidth: 0.5, borderColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
   buttonSecondaryText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
-  buttonPrimary: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  buttonPrimary: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
   buttonPrimaryText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   buttonDisabled: { opacity: 0.4 },
   loadingHint: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', marginTop: 4 },
