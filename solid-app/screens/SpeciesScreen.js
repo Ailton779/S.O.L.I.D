@@ -73,7 +73,8 @@ export default function SpeciesScreen({ navigation }) {
                   </View>
                 ))}
 
-                {snake.venomous && snake.first_aid && (
+                {/* Exibe primeiros socorros sempre que existir, independente de ser venenosa */}
+                {snake.first_aid && (
                   <View style={styles.firstAidBox}>
                     <View style={styles.firstAidHeader}>
                       <Ionicons name="medkit-outline" size={16} color={colors.danger} />

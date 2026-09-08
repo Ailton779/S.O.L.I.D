@@ -10,6 +10,22 @@ const contacts = [
 export default function ResultScreen({ navigation, route }) {
   const { snake, image, confidence } = route.params;
 
+  if (!snake) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={24} color={colors.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Erro</Text>
+          <View style={{ width: 32 }} />
+        </View>
+        <Text style={styles.infoText}>Dados da cobra não encontrados.</Text>
+      </View>
+    );
+  }
+
   const getConfidenceColor = (value) => {
     if (value >= 0.85) return colors.safe;
     if (value >= 0.65) return '#E6A817';
@@ -22,26 +38,32 @@ export default function ResultScreen({ navigation, route }) {
     return 'Baixa confiança';
   };
 
+  // Verifica se é uma cobra-verde (Philodryas)
+  const isGreenSnake = snake.scientific && snake.scientific.includes('Philodryas');
+
+  // Exibir primeiros socorros se for venenosa OU for cobra-verde
+  const shouldShowFirstAid = snake.venomous || isGreenSnake;
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Scanner')} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Resultado</Text>
         <View style={{ width: 32 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {image && (
           <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
         )}
 
         <View style={styles.nameContainer}>
-          <Text style={styles.name}>{snake.name}</Text>
-          <Text style={styles.scientific}>{snake.scientific}</Text>
+          <Text style={styles.name}>{snake.name || 'Espécie não identificada'}</Text>
+          <Text style={styles.scientific}>{snake.scientific || 'N/A'}</Text>
         </View>
 
         <View style={[styles.badge, snake.venomous ? styles.badgeDanger : styles.badgeSafe]}>
@@ -95,7 +117,7 @@ export default function ResultScreen({ navigation, route }) {
               <Ionicons name="shield-checkmark-outline" size={16} color={colors.primary} />
             )}
             <Text style={[styles.infoValue, snake.protected && { color: colors.primary }]}>
-              {snake.protection_status}
+              {snake.protection_status || 'Não informado'}
             </Text>
           </View>
         </View>
@@ -109,10 +131,10 @@ export default function ResultScreen({ navigation, route }) {
 
         <View style={styles.infoCard}>
           <Text style={styles.infoLabel}>Sobre a espécie</Text>
-          <Text style={styles.infoText}>{snake.description}</Text>
+          <Text style={styles.infoText}>{snake.description || 'Sem descrição disponível.'}</Text>
         </View>
 
-        {snake.venomous && snake.first_aid && (
+        {shouldShowFirstAid && snake.first_aid && (
           <View style={[styles.infoCard, styles.firstAidCard]}>
             <View style={styles.firstAidHeader}>
               <Ionicons name="medkit-outline" size={16} color={colors.danger} />
@@ -124,7 +146,7 @@ export default function ResultScreen({ navigation, route }) {
 
         <TouchableOpacity
           style={styles.scanAgainBtn}
-          onPress={() => navigation.navigate('Scanner')}
+          onPress={() => navigation.goBack()}
         >
           <Ionicons name="camera-outline" size={18} color="#FFFFFF" />
           <Text style={styles.scanAgainText}>Identificar outra cobra</Text>
@@ -138,6 +160,7 @@ export default function ResultScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, paddingTop: 56, paddingHorizontal: 24 },
+  scrollView: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   backBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 17, fontWeight: 'bold', color: colors.text },

@@ -37,8 +37,29 @@ export default function ScannerScreen({ navigation }) {
       const apiResult = await analyzeSnakeImage(image);
       console.log('[APP] Resultado da API:', apiResult);
       if (apiResult && apiResult.success) {
+        const data = apiResult.data;
+
+        // Verificação mais rigorosa: se não tiver nome ou for "Não aplicável", rejeita
+        const isNotSnake =
+          data.is_snake === false ||
+          data.name === 'Não aplicável' ||
+          data.name === 'N/A' ||
+          data.name === 'Não identificado' ||
+          data.name === 'Não identificada (Nenhuma cobra presente)' ||
+          data.name === 'Não identificada (Nenhuma serpente detectada)' ||
+          (data.name && data.name.toLowerCase().includes('nenhuma cobra')) ||
+          (data.description && data.description.toLowerCase().includes('não contém nenhuma cobra')) ||
+          (data.description && data.description.toLowerCase().includes('não é uma cobra')) ||
+          (data.description && data.description.toLowerCase().includes('nenhuma serpente'));
+
+        if (isNotSnake) {
+          Alert.alert('🔍 Não é uma cobra', 'A imagem enviada não parece conter uma cobra. Tente novamente com uma foto de uma serpente.');
+          setLoading(false);
+          return;
+        }
+
         navigation.navigate('Result', {
-          snake: apiResult.data,
+          snake: data,
           confidence: apiResult.confidence,
           image,
         });

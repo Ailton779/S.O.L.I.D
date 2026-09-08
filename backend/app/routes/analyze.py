@@ -22,6 +22,20 @@ MODELS = [
     "gemini-2.0-flash",
 ]
 
+def normalize_snake_data(data):
+    """Ajusta dados para espécies específicas, garantindo consistência."""
+    scientific = data.get("scientific", "")
+    name = data.get("name", "")
+
+    # Se for Philodryas (cobra-verde), forçar campos específicos
+    if "Philodryas" in scientific or "cobra-verde" in name.lower() or "cobra-cipó" in name.lower():
+        data["venomous"] = False
+        data["venom_type"] = "Opistóglifa (veneno fraco)"
+        data["description"] = data.get("description", "") + " Possui veneno fraco e presas traseiras, não representando risco significativo para humanos."
+        if not data.get("first_aid"):
+            data["first_aid"] = "Lave o local com água e sabão. Em caso de sintomas incomuns, procure atendimento médico."
+    return data
+
 async def process_image_data(image_data: bytes):
     print("1. Iniciando processamento...")
     img_base64 = base64.b64encode(image_data).decode('utf-8')
@@ -30,12 +44,17 @@ async def process_image_data(image_data: bytes):
     prompt = """
     Voce e um especialista em herpetologia da regiao do sertao do Ceara, Brasil (especificamente na cidade de Boa Viagem). A foto foi tirada nessa regiao, caracterizada pelo bioma Caatinga.
 
+    **Regras:**
+    1. Se a imagem NÃO contiver uma cobra, responda APENAS com o seguinte JSON:
+       {"is_snake": false, "message": "A imagem não contém uma cobra. Por favor, envie uma foto de uma serpente."}
+    2. Se a imagem contiver uma cobra, identifique a espécie e responda com o JSON no formato abaixo, incluindo o campo "is_snake": true.
+
     Identifique a especie de cobra na imagem priorizando as especies tipicas da Caatinga e do Nordeste brasileiro:
     - Jararaca-da-seca (Bothrops erythromelas) - PECONHENTA
     - Cascavel (Crotalus durissus) - PECONHENTA
     - Coral-verdadeira (Micrurus ibiboboca) - PECONHENTA
     - Coral-falsa (Oxyrhopus trigeminus) - INOFENSIVA
-    - Cobra-cipo (Philodryas nattereri) - INOFENSIVA
+    - Cobra-verde / Cobra-cipó-verde (Philodryas olfersii) - INOFENSIVA para humanos. obs: Não confundir com a cobra-cipó comum (Philodryas nattereri)
     - Jiboia (Boa constrictor) - INOFENSIVA
 
     Responda APENAS com JSON:
@@ -43,7 +62,7 @@ async def process_image_data(image_data: bytes):
         "name": "Nome popular",
         "scientific": "Nome cientifico",
         "venomous": true/false,
-        "venom_type": "Tipo de veneno ou null",
+        "venom_type": "Tipo de veneno ou null (para a cobra-verde use 'Opistóglifa (veneno fraco)')",
         "protected": true/false,
         "protection_status": "Status de protecao",
         "description": "Descricao da especie",
@@ -83,6 +102,8 @@ async def process_image_data(image_data: bytes):
                                 confidence = float(confidence)
                             except:
                                 confidence = 0.9
+                        # Normaliza os dados para espécies específicas
+                        data = normalize_snake_data(data)
                         print(f"Sucesso com {model_name}.")
                         return {
                             "success": True,

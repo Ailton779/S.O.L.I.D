@@ -61,7 +61,7 @@ export default function InfoScreen({ navigation }) {
           <View style={styles.devRow}>
             <Ionicons name="school-outline" size={16} color={colors.primary} />
             <Text style={styles.devText}>
-              <Text style={styles.devName}>Professor Orientador:</Text> Johnny Rocha Crisostomo
+              <Text style={styles.devName}>Johnny Rocha Crisostomo</Text> — Professor Orientador
             </Text>
           </View>
           <View style={styles.devRow}>
