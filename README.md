@@ -321,7 +321,7 @@ Este projeto é de uso acadêmico e não possui licença comercial.
 ## Contato
 
 **Desenvolvedor:** José Ailton Carneiro Alves Júnior
-**Email** jose.ailton10@aluno.ifce.edu.br
+**Email:** jose.ailton10@aluno.ifce.edu.br
 **GitHub:** [Ailton779](https://github.com/Ailton779)
 
 ---
