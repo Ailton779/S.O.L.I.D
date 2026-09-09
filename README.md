@@ -330,7 +330,6 @@ Este projeto é de uso acadêmico e não possui licença comercial.
 
 - Professor Johnny Rocha Crisostomo — pela orientação e suporte
 - IFCE — Campus Boa Viagem — pela estrutura e incentivo à pesquisa
-- Google Gemini — pela tecnologia de inteligência artificial
 
 ---
 
