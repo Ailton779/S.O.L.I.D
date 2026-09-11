@@ -321,7 +321,7 @@ Este projeto é de uso acadêmico e não possui licença comercial.
 ## Contato
 
 **Desenvolvedor:** José Ailton Carneiro Alves Júnior
-**Email** jose.ailton10@aluno.ifce.edu.br
+**Email:** jose.ailton10@aluno.ifce.edu.br
 **GitHub:** [Ailton779](https://github.com/Ailton779)
 
 ---
@@ -330,7 +330,6 @@ Este projeto é de uso acadêmico e não possui licença comercial.
 
 - Professor Johnny Rocha Crisostomo — pela orientação e suporte
 - IFCE — Campus Boa Viagem — pela estrutura e incentivo à pesquisa
-- Google Gemini — pela tecnologia de inteligência artificial
 
 ---
 
