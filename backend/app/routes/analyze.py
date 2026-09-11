@@ -42,30 +42,78 @@ async def process_image_data(image_data: bytes):
     print("2. Base64 gerado, tamanho:", len(img_base64))
 
     prompt = """
-    Voce e um especialista em herpetologia da regiao do sertao do Ceara, Brasil (especificamente na cidade de Boa Viagem). A foto foi tirada nessa regiao, caracterizada pelo bioma Caatinga.
+    Você é um especialista em herpetologia da região do sertão do Ceará, Brasil (especificamente na cidade de Boa Viagem). A foto foi tirada nessa região, caracterizada pelo bioma Caatinga.
 
     **Regras:**
     1. Se a imagem NÃO contiver uma cobra, responda APENAS com o seguinte JSON:
        {"is_snake": false, "message": "A imagem não contém uma cobra. Por favor, envie uma foto de uma serpente."}
     2. Se a imagem contiver uma cobra, identifique a espécie e responda com o JSON no formato abaixo, incluindo o campo "is_snake": true.
 
-    Identifique a especie de cobra na imagem priorizando as especies tipicas da Caatinga e do Nordeste brasileiro:
-    - Jararaca-da-seca (Bothrops erythromelas) - PECONHENTA
-    - Cascavel (Crotalus durissus) - PECONHENTA
-    - Coral-verdadeira (Micrurus ibiboboca) - PECONHENTA
+    **ATENÇÃO ESPECIAL — DIFERENÇA ENTRE CORAL-VERDADEIRA E CORAL-FALSA:**
+
+    Estas duas espécies são frequentemente confundidas, mas têm características MUITO distintas. Analise cada uma delas cuidadosamente:
+
+    **CORAL-VERDADEIRA (Micrurus ibiboboca) — PEÇONHENTA:**
+
+    *Formato da cabeça (característica MAIS importante):*
+    - A cabeça NÃO se destaca do corpo. Ela se mistura com o corpo, sem transição visível.
+    - Não é possível distinguir facilmente onde termina a cabeça e começa o corpo.
+    - O formato é cilíndrico e uniforme, como um tubo contínuo.
+
+    *Outras características:*
+    - Anéis COMPLETOS que dão a volta em todo o corpo (padrão circular perfeito)
+    - Padrão de 3 cores: vermelho, branco/amarelo e preto
+    - A cabeça é preta com focinho (nariz) de cor vermelha ou clara
+    - Corpo cilíndrico, esbelto e delgado
+    - Olhos muito pequenos (quase imperceptíveis)
+    - A sequência de cores é: vermelho - branco - preto - vermelho - branco - preto
+
+    **CORAL-FALSA (Oxyrhopus trigeminus) — INOFENSIVA:**
+
+    *Formato da cabeça (característica MAIS importante):*
+    - A cabeça se DESTACA claramente do corpo. É possível ver onde termina a cabeça e começa o pescoço/corpo.
+    - O formato da cabeça é mais largo e triangular, lembrando uma seta ou flecha.
+    - É fácil identificar visualmente onde está a cabeça, pois ela é mais larga que o pescoço.
+
+    *Outras características:*
+    - Anéis frequentemente INCOMPLETOS (não dão a volta completa no corpo)
+    - Padrão geralmente com apenas 2 cores predominantes (vermelho e preto)
+    - A cabeça é preta sem o focinho vermelho distinto
+    - Corpo mais robusto e menos esbelto que a coral-verdadeira
+    - Olhos maiores e mais visíveis
+    - Manchas irregulares podem estar presentes em vez de anéis perfeitos
+
+    **COMO DECIDIR:**
+
+    1. Olhe PRIMEIRO para a cabeça:
+       - Se a cabeça se MISTURA com o corpo (não dá para ver onde começa/termina) → CORAL-VERDADEIRA (peçonhenta).
+       - Se a cabeça se DESTACA e tem formato triangular/em seta → CORAL-FALSA (inofensiva).
+
+    2. Confirme com o padrão de cores:
+       - Três cores (vermelho, branco, preto) com anéis completos → CORAL-VERDADEIRA.
+       - Duas cores predominantes (vermelho e preto) com anéis incompletos → CORAL-FALSA.
+
+    **REGRA DE SEGURANÇA:**
+    Se mesmo após analisar a cabeça ainda houver dúvida, classifique como CORAL-VERDADEIRA (peçonhenta) com confiança baixa. Priorize SEMPRE a segurança do usuário.
+
+    Identifique a espécie de cobra na imagem priorizando as espécies típicas da Caatinga e do Nordeste brasileiro:
+    - Jararaca-da-seca (Bothrops erythromelas) - PEÇONHENTA
+    - Cascavel (Crotalus durissus) - PEÇONHENTA
+    - Coral-verdadeira (Micrurus ibiboboca) - PEÇONHENTA
     - Coral-falsa (Oxyrhopus trigeminus) - INOFENSIVA
-    - Cobra-verde / Cobra-cipó-verde (Philodryas olfersii) - INOFENSIVA para humanos. obs: Não confundir com a cobra-cipó comum (Philodryas nattereri)
+    - Cobra-verde / Cobra-cipó-verde (Philodryas olfersii) - INOFENSIVA para humanos
     - Jiboia (Boa constrictor) - INOFENSIVA
 
     Responda APENAS com JSON:
     {
+        "is_snake": true,
         "name": "Nome popular",
-        "scientific": "Nome cientifico",
+        "scientific": "Nome científico",
         "venomous": true/false,
         "venom_type": "Tipo de veneno ou null (para a cobra-verde use 'Opistóglifa (veneno fraco)')",
         "protected": true/false,
-        "protection_status": "Status de protecao",
-        "description": "Descricao da especie",
+        "protection_status": "Status de proteção",
+        "description": "Descrição da espécie (inclua as características visuais que você observou na imagem — especialmente o formato da cabeça e o padrão dos anéis — para justificar a identificação)",
         "first_aid": "Primeiros socorros ou null",
         "confidence": 0.0
     }
@@ -102,7 +150,6 @@ async def process_image_data(image_data: bytes):
                                 confidence = float(confidence)
                             except:
                                 confidence = 0.9
-                        # Normaliza os dados para espécies específicas
                         data = normalize_snake_data(data)
                         print(f"Sucesso com {model_name}.")
                         return {
